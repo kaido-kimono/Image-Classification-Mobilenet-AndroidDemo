@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:icon="@drawable/ic_round_person"
+        android:id="@+id/accountFragment"
+        android:title="Compte" />
+    <item
+        android:icon="@drawable/ic_round_eco"
+        android:id="@+id/classifierFragment"
+        android:title="Classifier" />
+
+    <item
+        android:icon="@drawable/ic_baseline_addchart"
+        android:id="@+id/resultatPlantationFragment"
+        android:title="Plantation" />
+</menu>
