@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">Image Classification demo</string>
+    <string name="app_name">Classifier</string>
+    <string name="txt_select_image">Selectionner une photo</string>
+    <string name="txt_classifier">Classifier</string>
+    <string name="txt_galery">Galery</string>
+    <string name="txt_capture">Capture</string>
 </resources>

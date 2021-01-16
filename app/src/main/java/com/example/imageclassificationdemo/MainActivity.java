@@ -1,21 +1,26 @@
 package com.example.imageclassificationdemo;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
@@ -27,7 +32,6 @@ import org.tensorflow.lite.support.image.ImageProcessor;
 import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.image.ops.ResizeOp;
 import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp;
-import org.tensorflow.lite.support.image.ops.Rot90Op;
 import org.tensorflow.lite.support.label.TensorLabel;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
@@ -40,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     protected Interpreter tflite;
     private MappedByteBuffer tfliteModel;
@@ -58,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     Uri imageuri;
     Button buclassify;
     TextView classitext;
+    LinearProgressIndicator progressIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,16 +73,8 @@ public class MainActivity extends AppCompatActivity {
         imageView=(ImageView)findViewById(R.id.image);
         buclassify=(Button)findViewById(R.id.classify);
         classitext=(TextView)findViewById(R.id.classifytext);
+        progressIndicator = findViewById(R.id.linearProgressIndicator2);
 
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent=new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent,"Select Picture"),12);
-            }
-        });
 
         try{
             tflite=new Interpreter(loadmodelfile(this));
@@ -86,47 +85,52 @@ public class MainActivity extends AppCompatActivity {
         buclassify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                int imageTensorIndex = 0;
-                int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
-                imageSizeY = imageShape[1];
-                imageSizeX = imageShape[2];
-                DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
-
-                int probabilityTensorIndex = 0;
-                int[] probabilityShape =
-                        tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
-                DataType probabilityDataType = tflite.getOutputTensor(probabilityTensorIndex).dataType();
-
-                inputImageBuffer = new TensorImage(imageDataType);
-                outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType);
-                probabilityProcessor = new TensorProcessor.Builder().add(getPostprocessNormalizeOp()).build();
-
-                inputImageBuffer = loadImage(bitmap);
-
-                tflite.run(inputImageBuffer.getBuffer(),outputProbabilityBuffer.getBuffer().rewind());
-                showresult();
+                classifier();
             }
         });
+    }
 
+    private void classifier() {
+        progressIndicator.show();
+        int imageTensorIndex = 0;
+        int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
+        imageSizeY = imageShape[1];
+        imageSizeX = imageShape[2];
+        DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
 
+        int probabilityTensorIndex = 0;
+        int[] probabilityShape =
+                tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
+        DataType probabilityDataType = tflite.getOutputTensor(probabilityTensorIndex).dataType();
 
+        inputImageBuffer = new TensorImage(imageDataType);
+        outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType);
+        probabilityProcessor = new TensorProcessor.Builder().add(getPostprocessNormalizeOp()).build();
+
+        inputImageBuffer = loadImage(bitmap);
+
+        tflite.run(inputImageBuffer.getBuffer(), outputProbabilityBuffer.getBuffer().rewind());
+        showresult();
     }
 
     private TensorImage loadImage(final Bitmap bitmap) {
         // Loads bitmap into a TensorImage.
-        inputImageBuffer.load(bitmap);
+        TensorImage tensorImage = null;
+        try {
+            inputImageBuffer.load(bitmap);
+            int cropSize = Math.min(bitmap.getWidth(), bitmap.getHeight());
+            // TODO(b/143564309): Fuse ops inside ImageProcessor.
+            ImageProcessor imageProcessor = new ImageProcessor.Builder()
+                    .add(new ResizeWithCropOrPadOp(cropSize, cropSize))
+                    .add(new ResizeOp(imageSizeX, imageSizeY, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+                    .add(getPreprocessNormalizeOp())
+                    .build();
+            tensorImage = imageProcessor.process(inputImageBuffer);
+        } catch (Exception e) {
+            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+        }
 
-        // Creates processor for the TensorImage.
-        int cropSize = Math.min(bitmap.getWidth(), bitmap.getHeight());
-        // TODO(b/143564309): Fuse ops inside ImageProcessor.
-        ImageProcessor imageProcessor =
-                new ImageProcessor.Builder()
-                        .add(new ResizeWithCropOrPadOp(cropSize, cropSize))
-                        .add(new ResizeOp(imageSizeX, imageSizeY, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
-                        .add(getPreprocessNormalizeOp())
-                        .build();
-        return imageProcessor.process(inputImageBuffer);
+        return tensorImage;
     }
 
     private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
@@ -155,12 +159,45 @@ public class MainActivity extends AppCompatActivity {
         Map<String, Float> labeledProbability =
                 new TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer))
                         .getMapWithFloatValue();
-        float maxValueInMap =(Collections.max(labeledProbability.values()));
+        float maxValueInMap = (Collections.max(labeledProbability.values()));
 
         for (Map.Entry<String, Float> entry : labeledProbability.entrySet()) {
-            if (entry.getValue()==maxValueInMap) {
+            if (entry.getValue() == maxValueInMap) {
                 classitext.setText(entry.getKey());
+                progressIndicator.hide();
             }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.menu_item_capture) {
+            captureImage();
+        } else {
+            selectOnGalery();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void selectOnGalery() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), 12);
+    }
+
+    private void captureImage() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        try {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        } catch (ActivityNotFoundException e) {
+            // display error state to the user
         }
     }
 
@@ -168,7 +205,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode==12 && resultCode==RESULT_OK && data!=null) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK && data != null) {
+            imageuri = data.getData();
+            Bundle extras = data.getExtras();
+            bitmap = (Bitmap) extras.get("data");
+            imageView.setImageBitmap(bitmap);
+        }
+
+        if (requestCode == 12 && resultCode == RESULT_OK && data != null) {
             imageuri = data.getData();
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageuri);
