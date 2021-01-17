@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -12,12 +13,17 @@ import androidx.navigation.ui.NavigationUI;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+
+import models.Utilisateur;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,9 +71,14 @@ public class MainActivity extends AppCompatActivity {
 
             if (resultCode == RESULT_OK) {
 
-                FirebaseAuth.getInstance().getCurrentUser();
+                FirebaseUser authUser = FirebaseAuth.getInstance().getCurrentUser();
+                Utilisateur user = new Utilisateur();
+                user.setuid(authUser.getUid());
+                user.setuEmail(authUser.getEmail());
+                user.setPhotoUrl(authUser.getPhotoUrl().toString());
+                user.setuNom(authUser.getDisplayName());
 
-
+                saveUtilisateur(user);
 
             } else {
                 if (response == null) {
@@ -82,5 +93,23 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void saveUtilisateur(Utilisateur user) {
+        FirebaseFirestore.getInstance().collection("utilisateurs")
+            .document(user.getuid())
+            .set(user)
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+
+                }
+            });
+
     }
 }

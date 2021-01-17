@@ -6,13 +6,12 @@ public class Utilisateur implements Serializable {
 
     private String uid;
     private String uNom;
-    private String uPrenom;
     private String uEmail;
+    private String photoUrl;
 
-    public Utilisateur(String uid, String uNom, String uPrenom, String uEmail) {
+    public Utilisateur(String uid, String uNom, String uEmail) {
         this.uid = uid;
         this.uNom = uNom;
-        this.uPrenom = uPrenom;
         this.uEmail = uEmail;
     }
 
@@ -27,9 +26,6 @@ public class Utilisateur implements Serializable {
         return uNom;
     }
 
-    public String getuPrenom() {
-        return uPrenom;
-    }
 
     public String getuEmail() {
         return uEmail;
@@ -43,11 +39,15 @@ public class Utilisateur implements Serializable {
         this.uNom = uNom;
     }
 
-    public void setuPrenom(String uPrenom) {
-        this.uPrenom = uPrenom;
-    }
-
     public void setuEmail(String uEmail) {
         this.uEmail = uEmail;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
     }
 }
