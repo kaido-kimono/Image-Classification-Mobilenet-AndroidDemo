@@ -1,4 +1,4 @@
-package com.example.imageclassificationdemo.ui;
+package com.example.imageclassificationdemo.ui.addaccount;
 
 import android.os.Bundle;
 

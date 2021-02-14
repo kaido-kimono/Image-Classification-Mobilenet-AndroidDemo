@@ -7,26 +7,63 @@
 
     <fragment
         android:id="@+id/classifierFragment"
-        android:name="com.example.imageclassificationdemo.ui.ClassifierFragment"
-        android:label="fragment_classifier"
+        android:name="com.example.imageclassificationdemo.ui.classifier.ClassifierFragment"
+        android:label="Classifier"
         tools:layout="@layout/fragment_classifier" >
         <action
-            android:id="@+id/action_detail_navigation"
+            android:id="@+id/nav_to_detail_classifier"
             app:destination="@id/detailClassifierFragment" />
     </fragment>
     <fragment
         android:id="@+id/detailClassifierFragment"
-        android:name="com.example.imageclassificationdemo.ui.DetailClassifierFragment"
-        android:label="fragment_detail_classifier"
+        android:name="com.example.imageclassificationdemo.ui.detailclassifier.DetailClassifierFragment"
+        android:label="Detail Classifier"
         tools:layout="@layout/fragment_detail_classifier" />
     <fragment
-        android:id="@+id/resultatPlantationFragment"
-        android:name="com.example.imageclassificationdemo.ui.ResultatPlantationFragment"
-        android:label="fragment_resultat_plantation"
-        tools:layout="@layout/fragment_resultat_plantation" />
+        android:id="@+id/plantationFragment"
+        android:name="com.example.imageclassificationdemo.ui.plantation.PlantationFragment"
+        android:label="Plantation"
+        tools:layout="@layout/fragment_plantation" >
+        <action
+            android:id="@+id/nav_add_plantation"
+            app:destination="@id/addPlantationFragment" />
+        <action
+            android:id="@+id/nav_detail_plantation"
+            app:destination="@id/detailPlantationFragment" />
+        <argument
+            android:name="plantation"
+            app:argType="models.Plantation" />
+    </fragment>
     <fragment
         android:id="@+id/accountFragment"
-        android:name="com.example.imageclassificationdemo.ui.AccountFragment"
-        android:label="fragment_account"
+        android:name="com.example.imageclassificationdemo.ui.addaccount.AccountFragment"
+        android:label="Account"
         tools:layout="@layout/fragment_account" />
+    <fragment
+        tools:layout="@layout/fragment_add_plantation"
+        android:id="@+id/addPlantationFragment"
+        android:name="com.example.imageclassificationdemo.ui.addplantation.AddPlantationFragment"
+        android:label="Add Plantation" />
+    <fragment
+        android:id="@+id/detailPlantationFragment"
+        tools:layout="@layout/fragment_detail_plantation"
+        android:name="com.example.imageclassificationdemo.ui.detailplantation.DetailPlantationFragment"
+        android:label="Detail Plantation" >
+        <action
+            android:id="@+id/nav_detail_culture"
+            app:destination="@id/detailCultureFragment" />
+        <action
+            android:id="@+id/nav_add_culture"
+            app:destination="@id/addCultureFragment" />
+    </fragment>
+    <fragment
+        tools:layout="@layout/fragment_detail_culture"
+        android:id="@+id/detailCultureFragment"
+        android:name="com.example.imageclassificationdemo.ui.detailculture.DetailCultureFragment"
+        android:label="DetailCultureFragment" />
+    <fragment
+        tools:layout="@layout/fragment_add_culture"
+        android:id="@+id/addCultureFragment"
+        android:name="com.example.imageclassificationdemo.ui.addculture.AddCultureFragment"
+        android:label="AddCultureFragment" />
 </navigation>

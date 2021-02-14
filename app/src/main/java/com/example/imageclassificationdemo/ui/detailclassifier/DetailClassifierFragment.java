@@ -1,4 +1,4 @@
-package com.example.imageclassificationdemo.ui;
+package com.example.imageclassificationdemo.ui.detailclassifier;
 
 import android.os.Bundle;
 

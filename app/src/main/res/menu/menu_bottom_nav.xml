@@ -11,6 +11,6 @@
 
     <item
         android:icon="@drawable/ic_baseline_addchart"
-        android:id="@+id/resultatPlantationFragment"
+        android:id="@+id/plantationFragment"
         android:title="Plantation" />
 </menu>

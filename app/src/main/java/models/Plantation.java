@@ -5,11 +5,13 @@ import java.io.Serializable;
 public class Plantation implements Serializable {
 
     private String uid;
+    private String nom;
     private float superficie;
     private double localisation;
 
-    public Plantation(String uid, float superficie, double localisation) {
+    public Plantation(String uid, String nom, float superficie, double localisation) {
         this.uid = uid;
+        this.nom = nom;
         this.superficie = superficie;
         this.localisation = localisation;
     }
@@ -39,5 +41,13 @@ public class Plantation implements Serializable {
 
     public void setLocalisation(double localisation) {
         this.localisation = localisation;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
     }
 }

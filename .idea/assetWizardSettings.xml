@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:/$PROJECT_DIR$/../../../../Showee%20Mayeze/AppData/Local/Android/Sdk/icons/material/materialicons/addchart/baseline_addchart_24.xml" />
+                                      <entry key="url" value="file:/$PROJECT_DIR$/../../../../Showee%20Mayeze/AppData/Local/Android/Sdk/icons/material/materialicons/add/baseline_add_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -29,7 +29,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_baseline_addchart" />
+                            <entry key="outputName" value="ic_baseline_add" />
                             <entry key="sourceFile" value="C:\Users\Showee Mayeze\Documents\GitHub\Image-Classification-Mobilenet-AndroidDemo" />
                           </map>
                         </option>

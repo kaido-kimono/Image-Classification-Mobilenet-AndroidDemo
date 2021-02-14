@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
@@ -40,6 +42,17 @@ public class MainActivity extends AppCompatActivity {
 
         setupBottomNavigationView();
         checkForAuth();
+        setNavController();
+    }
+
+    private void setNavController() {
+        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                String label = destination.getLabel().toString();
+                getSupportActionBar().setTitle(label);
+            }
+        });
     }
 
     private void checkForAuth() {

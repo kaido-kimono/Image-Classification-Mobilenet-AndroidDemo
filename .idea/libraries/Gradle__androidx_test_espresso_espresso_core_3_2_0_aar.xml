@@ -3,9 +3,10 @@
     <CLASSES>
       <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/37da376dfe89f13b55158ad13a29c730/espresso-core-3.2.0/res" />
       <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/072ab9748d5408ee02555df561ec79d3/espresso-core-3.2.0/res" />
-      <root url="jar://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/f2ec64491042a9c2499a469cf83814c6/espresso-core-3.2.0/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/f2ec64491042a9c2499a469cf83814c6/espresso-core-3.2.0/AndroidManifest.xml" />
       <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/f2ec64491042a9c2499a469cf83814c6/espresso-core-3.2.0/res" />
+      <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/d4ec1e243c68948b2af2a282ec144ab4/espresso-core-3.2.0/res" />
+      <root url="jar://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/d4ec1e243c68948b2af2a282ec144ab4/espresso-core-3.2.0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/d4ec1e243c68948b2af2a282ec144ab4/espresso-core-3.2.0/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$USER_HOME$/Downloads/gradle/caches/modules-2/files-2.1/androidx.test.espresso/espresso-core/3.2.0/4dd88178a28883ac149f76e4908942486e756b72/espresso-core-3.2.0-javadoc.jar!/" />

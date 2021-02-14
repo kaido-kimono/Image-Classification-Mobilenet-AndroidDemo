@@ -1,4 +1,4 @@
-package com.example.imageclassificationdemo.ui;
+package com.example.imageclassificationdemo.ui.classifier;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -42,6 +42,8 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Collections;
@@ -129,8 +131,13 @@ public class ClassifierFragment extends Fragment {
 
         inputImageBuffer = loadImage(bitmap);
 
-        tflite.run(inputImageBuffer.getBuffer(), outputProbabilityBuffer.getBuffer().rewind());
-        showresult();
+        ByteBuffer byteBuffer = inputImageBuffer.getBuffer();
+        Buffer buffer = inputImageBuffer.getBuffer().rewind();
+
+        if (byteBuffer != null) {
+            tflite.run(byteBuffer, buffer);
+            showresult();
+        }
     }
 
     private void showresult(){
