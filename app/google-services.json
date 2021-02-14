@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "677575216471",
+    "project_id": "plantedata-83e11",
+    "storage_bucket": "plantedata-83e11.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:677575216471:android:a5fba111b8fcaa7cde4212",
+        "android_client_info": {
+          "package_name": "com.example.imageclassificationdemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "677575216471-kdv91a1s4qj91ge9fv6j5pr01iro1379.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDupdRM7eg-1RvRf0CAGHnPl5Su5LAb5qk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "677575216471-kdv91a1s4qj91ge9fv6j5pr01iro1379.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
