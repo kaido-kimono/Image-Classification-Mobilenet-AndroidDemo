@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.imageclassificationdemo.R;
 
@@ -28,6 +29,7 @@ public class DetailPlantationFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         Plantation plantation = (Plantation) getArguments().getSerializable("plantation");
 
-
+        TextView tv = view.findViewById(R.id.tvPlantationName);
+        tv.setText(plantation.getNom());
     }
 }

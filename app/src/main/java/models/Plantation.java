@@ -6,10 +6,10 @@ public class Plantation implements Serializable {
 
     private String uid;
     private String nom;
-    private float superficie;
+    private double superficie;
     private double localisation;
 
-    public Plantation(String uid, String nom, float superficie, double localisation) {
+    public Plantation(String uid, String nom, double superficie, double localisation) {
         this.uid = uid;
         this.nom = nom;
         this.superficie = superficie;
@@ -23,7 +23,7 @@ public class Plantation implements Serializable {
         return uid;
     }
 
-    public float getSuperficie() {
+    public double getSuperficie() {
         return  this.superficie;
     }
 
