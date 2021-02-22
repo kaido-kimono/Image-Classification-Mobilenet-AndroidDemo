@@ -60,10 +60,18 @@
         tools:layout="@layout/fragment_detail_culture"
         android:id="@+id/detailCultureFragment"
         android:name="com.example.imageclassificationdemo.ui.detailculture.DetailCultureFragment"
-        android:label="DetailCultureFragment" />
+        android:label="Detail Culture" >
+        <argument
+            android:name="culture"
+            app:argType="models.Culture" />
+    </fragment>
     <fragment
         tools:layout="@layout/fragment_add_culture"
         android:id="@+id/addCultureFragment"
         android:name="com.example.imageclassificationdemo.ui.addculture.AddCultureFragment"
-        android:label="AddCultureFragment" />
+        android:label="Add Culture" >
+        <argument
+            android:name="uidPlantation"
+            app:argType="string" />
+    </fragment>
 </navigation>

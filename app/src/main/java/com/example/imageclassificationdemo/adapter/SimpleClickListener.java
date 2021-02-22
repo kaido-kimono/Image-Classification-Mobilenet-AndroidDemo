@@ -1,5 +1,6 @@
 package com.example.imageclassificationdemo.adapter;
 
 public interface SimpleClickListener<T> {
-    public void onItemClick(T item);
+    void onItemClick(T item);
+    boolean onItemLongClick(T item);
 }

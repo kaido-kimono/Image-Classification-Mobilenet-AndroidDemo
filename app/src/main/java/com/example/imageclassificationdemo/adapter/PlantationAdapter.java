@@ -35,13 +35,8 @@ public class PlantationAdapter extends ListAdapter<Plantation, CustomViewHolder>
         ItemPlantationBinding binding = (ItemPlantationBinding) holder.binding;
         final Plantation plantation = getItem(position);
 
-        binding.getRoot().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onItemClick(plantation);
-            }
-        });
-
+        binding.getRoot().setOnClickListener(v -> listener.onItemClick(plantation));
+        binding.getRoot().setOnLongClickListener(v -> listener.onItemLongClick(plantation) );
         binding.setPlantation(plantation);
         binding.executePendingBindings();
     }
@@ -55,7 +50,7 @@ public class PlantationAdapter extends ListAdapter<Plantation, CustomViewHolder>
 
         @Override
         public boolean areContentsTheSame(@NonNull Plantation oldItem, @NonNull Plantation newItem) {
-            return oldItem.getuid().equals(newItem.getuid());
+            return oldItem.getUid().equals(newItem.getUid());
         }
     }
 }

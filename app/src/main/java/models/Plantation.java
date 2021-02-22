@@ -19,24 +19,24 @@ public class Plantation implements Serializable {
     public Plantation() {
     }
 
-    public String getuid() {
-        return uid;
-    }
-
     public double getSuperficie() {
         return  this.superficie;
     }
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public void setSuperficie(double superficie) {
+        this.superficie = superficie;
+    }
+
     public double getLocalisation() {
         return localisation;
-    }
-
-    public void setuid(String uid) {
-        uid = uid;
-    }
-
-    public void setSuperficie(float superficie) {
-        this.superficie = superficie;
     }
 
     public void setLocalisation(double localisation) {

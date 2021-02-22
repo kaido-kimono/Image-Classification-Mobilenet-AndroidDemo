@@ -24,7 +24,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
+import models.Conseil;
+import models.Maladie;
 import models.Utilisateur;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,12 +49,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setNavController() {
-        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
-            @Override
-            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                String label = destination.getLabel().toString();
-                getSupportActionBar().setTitle(label);
-            }
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            String label = destination.getLabel().toString();
+            getSupportActionBar().setTitle(label);
         });
     }
 

@@ -10,7 +10,7 @@ public class Conseil implements Serializable {
     private String Uid;
     private String UidMaladie;
     private String titre;
-    private String descriptionMaladie;
+    private String descriptionConseil;
     @ServerTimestamp
     private Date createdDate;
 
@@ -18,7 +18,7 @@ public class Conseil implements Serializable {
         Uid = uid;
         UidMaladie = uidMaladie;
         this.titre = titre;
-        this.descriptionMaladie = descriptionMaladie;
+        this.descriptionConseil = descriptionMaladie;
         this.createdDate = createdDate;
     }
 
@@ -38,7 +38,7 @@ public class Conseil implements Serializable {
     }
 
     public String getDescriptionMaladie() {
-        return descriptionMaladie;
+        return descriptionConseil;
     }
 
     public Date getCreatedDate() {
@@ -57,11 +57,13 @@ public class Conseil implements Serializable {
         this.titre = titre;
     }
 
-    public void setDescriptionMaladie(String descriptionMaladie) {
-        this.descriptionMaladie = descriptionMaladie;
+    public void setDescriptionConseil(String descriptionMaladie) {
+        this.descriptionConseil = descriptionMaladie;
     }
 
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
+
+
 }

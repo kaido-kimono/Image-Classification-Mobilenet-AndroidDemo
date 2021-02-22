@@ -6,13 +6,16 @@ import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +29,10 @@ import android.widget.Toast;
 
 import com.example.imageclassificationdemo.R;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
@@ -46,9 +53,13 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import models.Maladie;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -75,6 +86,7 @@ public class ClassifierFragment extends Fragment {
     private Button buclassify;
     private TextView classitext;
     private LinearProgressIndicator progressIndicator;
+    private List<Maladie> maladies;
 
 
     @Override
@@ -87,7 +99,20 @@ public class ClassifierFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        getMaladies();
         return inflater.inflate(R.layout.fragment_classifier, container, false);
+    }
+
+    private void getMaladies() {
+        FirebaseFirestore.getInstance().collection("maladies")
+            .addSnapshotListener((value, error) -> {
+                if (error != null || value == null) {
+                    Log.e("TAG", error.getLocalizedMessage());
+                    return;
+                }
+
+                maladies = value.toObjects(Maladie.class);
+            });
     }
 
     @Override
@@ -99,17 +124,12 @@ public class ClassifierFragment extends Fragment {
         progressIndicator = view.findViewById(R.id.linearProgressIndicator2);
 
         try{
-            tflite=new Interpreter(loadmodelfile(requireActivity()));
+            tflite = new Interpreter(loadmodelfile(requireActivity()));
         }catch (Exception e) {
             e.printStackTrace();
         }
 
-        buclassify.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                classifier();
-            }
-        });
+        buclassify.setOnClickListener(v -> classifier());
     }
 
     private void classifier() {
@@ -131,6 +151,11 @@ public class ClassifierFragment extends Fragment {
 
         inputImageBuffer = loadImage(bitmap);
 
+        if (inputImageBuffer == null) {
+            Toast.makeText(requireContext(), "Selectionnez une photo", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         ByteBuffer byteBuffer = inputImageBuffer.getBuffer();
         Buffer buffer = inputImageBuffer.getBuffer().rewind();
 
@@ -140,8 +165,7 @@ public class ClassifierFragment extends Fragment {
         }
     }
 
-    private void showresult(){
-
+    private void showresult() {
         try{
             labels = FileUtil.loadLabels(requireContext(),"newdict.txt");
         }catch (Exception e){
