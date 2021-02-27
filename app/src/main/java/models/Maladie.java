@@ -13,6 +13,38 @@ public class Maladie implements Serializable {
     @ServerTimestamp
     private Date createdDate;
 
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getNomMaladie() {
+        return nomMaladie;
+    }
+
+    public void setNomMaladie(String nomMaladie) {
+        this.nomMaladie = nomMaladie;
+    }
+
+    public String getDescriptionMaladie() {
+        return descriptionMaladie;
+    }
+
+    public void setDescriptionMaladie(String descriptionMaladie) {
+        this.descriptionMaladie = descriptionMaladie;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
     public Maladie(String uid, String nomMaladie, String descriptionMaladie, Date createdDate) {
         this.uid = uid;
         this.nomMaladie = nomMaladie;
@@ -21,38 +53,5 @@ public class Maladie implements Serializable {
     }
 
     public Maladie() {
-    }
-
-    public String getuid() {
-        return uid;
-    }
-
-    public String getNomMaladie() {
-        return nomMaladie;
-    }
-
-    public String getDescriptionMaladie() {
-        return descriptionMaladie;
-    }
-
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-
-    public void setuid(String uid) {
-        uid = uid;
-    }
-
-    public void setNomMaladie(String nomMaladie) {
-        this.nomMaladie = nomMaladie;
-    }
-
-    public void setDescriptionMaladie(String descriptionMaladie) {
-        this.descriptionMaladie = descriptionMaladie;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
     }
 }

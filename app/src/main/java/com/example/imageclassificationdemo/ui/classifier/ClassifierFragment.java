@@ -57,7 +57,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import models.Maladie;
 
@@ -178,9 +180,27 @@ public class ClassifierFragment extends Fragment {
 
         for (Map.Entry<String, Float> entry : labeledProbability.entrySet()) {
             if (entry.getValue() == maxValueInMap) {
-                classitext.setText(entry.getKey());
-                progressIndicator.hide();
+
+                String uidMaladie = entry.getKey();
+                Float probability = entry.getValue();
+
+                Log.e("ericampire", "KEY : " + uidMaladie + " PROB :" + probability);
+                getMaladieByUid(uidMaladie);
             }
+        }
+    }
+
+    private void getMaladieByUid(String uidMaladie) {
+        Maladie currentMaladie = null;
+        for (Maladie maladie: maladies) {
+            if (maladie.getUid().equals(uidMaladie)) {
+                currentMaladie = maladie;
+                break;
+            }
+        }
+        if (currentMaladie != null) {
+            classitext.setText(currentMaladie.getNomMaladie());
+            progressIndicator.hide();
         }
     }
 
@@ -208,10 +228,11 @@ public class ClassifierFragment extends Fragment {
             int cropSize = Math.min(bitmap.getWidth(), bitmap.getHeight());
             // TODO(b/143564309): Fuse ops inside ImageProcessor.
             ImageProcessor imageProcessor = new ImageProcessor.Builder()
-                    .add(new ResizeWithCropOrPadOp(cropSize, cropSize))
-                    .add(new ResizeOp(imageSizeX, imageSizeY, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
-                    .add(getPreprocessNormalizeOp())
-                    .build();
+                .add(new ResizeWithCropOrPadOp(cropSize, cropSize))
+                .add(new ResizeOp(imageSizeX, imageSizeY, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+                .add(getPreprocessNormalizeOp())
+                .build();
+
             tensorImage = imageProcessor.process(inputImageBuffer);
         } catch (Exception e) {
             Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
