@@ -1,15 +1,18 @@
 <component name="libraryTable">
   <library name="Gradle: androidx.drawerlayout:drawerlayout:1.0.0@aar">
     <ANNOTATIONS>
-      <root url="jar://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/3f56b1265c1ed2122e951c7bf7fc0d24/drawerlayout-1.0.0/annotations.zip!/" />
+      <root url="jar://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/c857ae5d0c77054118e34718130e345e/drawerlayout-1.0.0/annotations.zip!/" />
     </ANNOTATIONS>
     <CLASSES>
       <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/cb2cdf934d3d3e0441b52d1dc3cb2e6a/drawerlayout-1.0.0/res" />
       <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/727f4567341fcf59ba6ec2fbb4290436/drawerlayout-1.0.0/res" />
       <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/78a0eaa00907390817aec93ff5e492d8/drawerlayout-1.0.0/res" />
-      <root url="jar://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/3f56b1265c1ed2122e951c7bf7fc0d24/drawerlayout-1.0.0/jars/classes.jar!/" />
       <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/3f56b1265c1ed2122e951c7bf7fc0d24/drawerlayout-1.0.0/res" />
-      <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/3f56b1265c1ed2122e951c7bf7fc0d24/drawerlayout-1.0.0/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/bb371932a89b26fbae2818f04b8286ce/drawerlayout-1.0.0/res" />
+      <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/6f49beaff78f5e81089929502669a660/drawerlayout-1.0.0/res" />
+      <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/c857ae5d0c77054118e34718130e345e/drawerlayout-1.0.0/res" />
+      <root url="jar://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/c857ae5d0c77054118e34718130e345e/drawerlayout-1.0.0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/Downloads/gradle/caches/transforms-2/files-2.1/c857ae5d0c77054118e34718130e345e/drawerlayout-1.0.0/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

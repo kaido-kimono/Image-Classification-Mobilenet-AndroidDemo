@@ -18,7 +18,11 @@
         android:id="@+id/detailClassifierFragment"
         android:name="com.example.imageclassificationdemo.ui.detailclassifier.DetailClassifierFragment"
         android:label="Detail Classifier"
-        tools:layout="@layout/fragment_detail_classifier" />
+        tools:layout="@layout/fragment_detail_classifier" >
+        <argument
+            android:name="uidMaladie"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/plantationFragment"
         android:name="com.example.imageclassificationdemo.ui.plantation.PlantationFragment"

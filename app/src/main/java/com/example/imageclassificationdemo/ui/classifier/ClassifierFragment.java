@@ -6,14 +6,7 @@ import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
-
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,12 +20,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+
 import com.example.imageclassificationdemo.R;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
@@ -49,17 +45,11 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import models.Maladie;
 
@@ -106,20 +96,18 @@ public class ClassifierFragment extends Fragment {
     }
 
     private void getMaladies() {
-        FirebaseFirestore.getInstance().collection("maladies")
-            .addSnapshotListener((value, error) -> {
-                if (error != null || value == null) {
-                    Log.e("TAG", error.getLocalizedMessage());
-                    return;
-                }
+        FirebaseFirestore.getInstance().collection("maladies").addSnapshotListener((value, error) -> {
+            if (error != null || value == null) {
+                Log.e("TAG", error.getLocalizedMessage());
+                return;
+            }
 
-                maladies = value.toObjects(Maladie.class);
-            });
+            maladies = value.toObjects(Maladie.class);
+        });
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         imageView=(ImageView)view.findViewById(R.id.image);
         buclassify=(Button)view.findViewById(R.id.classify);
         classitext=(TextView)view.findViewById(R.id.classifytext);
@@ -153,18 +141,8 @@ public class ClassifierFragment extends Fragment {
 
         inputImageBuffer = loadImage(bitmap);
 
-        if (inputImageBuffer == null) {
-            Toast.makeText(requireContext(), "Selectionnez une photo", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        ByteBuffer byteBuffer = inputImageBuffer.getBuffer();
-        Buffer buffer = inputImageBuffer.getBuffer().rewind();
-
-        if (byteBuffer != null) {
-            tflite.run(byteBuffer, buffer);
-            showresult();
-        }
+        tflite.run(inputImageBuffer.getBuffer(), outputProbabilityBuffer.getBuffer().rewind());
+        showresult();
     }
 
     private void showresult() {
@@ -180,19 +158,32 @@ public class ClassifierFragment extends Fragment {
 
         for (Map.Entry<String, Float> entry : labeledProbability.entrySet()) {
             if (entry.getValue() == maxValueInMap) {
-
-                String uidMaladie = entry.getKey();
-                Float probability = entry.getValue();
-
-                Log.e("ericampire", "KEY : " + uidMaladie + " PROB :" + probability);
-                getMaladieByUid(uidMaladie);
+                NavDirections direction = ClassifierFragmentDirections.navToDetailClassifier(entry.getKey());
+                Navigation.findNavController(requireView()).navigate(direction);
             }
         }
     }
 
+    private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
+        AssetFileDescriptor fileDescriptor = activity.getAssets().openFd("newmodel.tflite");
+        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+        FileChannel fileChannel = inputStream.getChannel();
+        long startoffset = fileDescriptor.getStartOffset();
+        long declaredLength = fileDescriptor.getDeclaredLength();
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startoffset, declaredLength);
+    }
+
+    private TensorOperator getPreprocessNormalizeOp() {
+        return new NormalizeOp(IMAGE_MEAN, IMAGE_STD);
+    }
+
+    private TensorOperator getPostprocessNormalizeOp() {
+        return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
+    }
+
     private void getMaladieByUid(String uidMaladie) {
         Maladie currentMaladie = null;
-        for (Maladie maladie: maladies) {
+        for (Maladie maladie : maladies) {
             if (maladie.getUid().equals(uidMaladie)) {
                 currentMaladie = maladie;
                 break;
@@ -202,22 +193,6 @@ public class ClassifierFragment extends Fragment {
             classitext.setText(currentMaladie.getNomMaladie());
             progressIndicator.hide();
         }
-    }
-
-    private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
-        AssetFileDescriptor fileDescriptor=activity.getAssets().openFd("newmodel.tflite");
-        FileInputStream inputStream=new FileInputStream(fileDescriptor.getFileDescriptor());
-        FileChannel fileChannel=inputStream.getChannel();
-        long startoffset = fileDescriptor.getStartOffset();
-        long declaredLength=fileDescriptor.getDeclaredLength();
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY,startoffset,declaredLength);
-    }
-
-    private TensorOperator getPreprocessNormalizeOp() {
-        return new NormalizeOp(IMAGE_MEAN, IMAGE_STD);
-    }
-    private TensorOperator getPostprocessNormalizeOp(){
-        return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
     }
 
     private TensorImage loadImage(final Bitmap bitmap) {

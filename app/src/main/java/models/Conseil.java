@@ -7,63 +7,62 @@ import java.util.Date;
 
 public class Conseil implements Serializable {
 
-    private String Uid;
-    private String UidMaladie;
+    private String uid;
+    private String uidMaladie;
     private String titre;
-    private String descriptionConseil;
+    private String descriptionMaladie;
     @ServerTimestamp
     private Date createdDate;
 
     public Conseil(String uid, String uidMaladie, String titre, String descriptionMaladie, Date createdDate) {
-        Uid = uid;
-        UidMaladie = uidMaladie;
+        this.uid = uid;
+        this.uidMaladie = uidMaladie;
         this.titre = titre;
-        this.descriptionConseil = descriptionMaladie;
+        this.descriptionMaladie = descriptionMaladie;
         this.createdDate = createdDate;
     }
 
     public Conseil() {
     }
 
+
     public String getUid() {
-        return Uid;
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getUidMaladie() {
-        return UidMaladie;
+        return uidMaladie;
+    }
+
+    public void setUidMaladie(String uidMaladie) {
+        this.uidMaladie = uidMaladie;
     }
 
     public String getTitre() {
         return titre;
     }
 
+    public void setTitre(String titre) {
+        this.titre = titre;
+    }
+
     public String getDescriptionMaladie() {
-        return descriptionConseil;
+        return descriptionMaladie;
+    }
+
+    public void setDescriptionMaladie(String descriptionMaladie) {
+        this.descriptionMaladie = descriptionMaladie;
     }
 
     public Date getCreatedDate() {
         return createdDate;
     }
 
-    public void setUid(String uid) {
-        Uid = uid;
-    }
-
-    public void setUidMaladie(String uidMaladie) {
-        UidMaladie = uidMaladie;
-    }
-
-    public void setTitre(String titre) {
-        this.titre = titre;
-    }
-
-    public void setDescriptionConseil(String descriptionMaladie) {
-        this.descriptionConseil = descriptionMaladie;
-    }
-
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
-
-
 }
