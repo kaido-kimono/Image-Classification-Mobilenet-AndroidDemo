@@ -29,7 +29,7 @@
         android:theme="@style/AppTheme">
 
         <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCBM2KcjpP_G3lRWcKCWu0gHYtIzO4bxlA"/>
+            android:value="AIzaSyC-w8Hh2-QaSZJw1-AJGnSp9eP4a4XVfGs"/>
 
         <activity
             android:name="com.schibstedspain.leku.LocationPickerActivity"

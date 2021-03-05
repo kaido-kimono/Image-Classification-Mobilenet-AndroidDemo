@@ -1,273 +1,274 @@
-package com.example.imageclassificationdemo.ui.classifier;
+package com.example.imageclassificationdemo.ui.classifier
 
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import org.tensorflow.lite.support.image.TensorImage
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
+import org.tensorflow.lite.support.common.TensorProcessor
+import android.graphics.Bitmap
+import android.widget.TextView
+import com.google.android.material.progressindicator.LinearProgressIndicator
+import models.Maladie
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.os.Bundle
+import com.example.imageclassificationdemo.R
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.FirebaseFirestoreException
+import org.tensorflow.lite.support.label.TensorLabel
+import androidx.navigation.NavDirections
+import kotlin.Throws
+import android.app.Activity
+import android.content.res.AssetFileDescriptor
+import org.tensorflow.lite.support.common.TensorOperator
+import org.tensorflow.lite.support.common.ops.NormalizeOp
+import com.example.imageclassificationdemo.ui.classifier.ClassifierFragment
+import org.tensorflow.lite.support.image.ImageProcessor
+import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp
+import org.tensorflow.lite.support.image.ops.ResizeOp
+import android.widget.Toast
+import android.view.MenuInflater
+import android.content.Intent
+import android.provider.MediaStore
+import android.content.ActivityNotFoundException
+import android.net.Uri
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.widget.Button
+import android.widget.ImageView
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
+import com.google.firebase.storage.FirebaseStorage
+import models.Conseil
+import models.Diagnostic
+import org.tensorflow.lite.Interpreter
+import org.tensorflow.lite.support.common.FileUtil
+import java.io.FileInputStream
+import java.io.IOException
+import java.lang.Exception
+import java.nio.MappedByteBuffer
+import java.nio.channels.FileChannel
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
-import com.example.imageclassificationdemo.R;
-import com.google.android.material.progressindicator.LinearProgressIndicator;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import org.tensorflow.lite.DataType;
-import org.tensorflow.lite.Interpreter;
-import org.tensorflow.lite.support.common.FileUtil;
-import org.tensorflow.lite.support.common.TensorOperator;
-import org.tensorflow.lite.support.common.TensorProcessor;
-import org.tensorflow.lite.support.common.ops.NormalizeOp;
-import org.tensorflow.lite.support.image.ImageProcessor;
-import org.tensorflow.lite.support.image.TensorImage;
-import org.tensorflow.lite.support.image.ops.ResizeOp;
-import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp;
-import org.tensorflow.lite.support.label.TensorLabel;
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import models.Maladie;
-
-import static android.app.Activity.RESULT_OK;
-
-
-public class ClassifierFragment extends Fragment {
-
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-
-    protected Interpreter tflite;
-    private MappedByteBuffer tfliteModel;
-    private TensorImage inputImageBuffer;
-    private  int imageSizeX;
-    private  int imageSizeY;
-    private TensorBuffer outputProbabilityBuffer;
-    private TensorProcessor probabilityProcessor;
-    private static final float IMAGE_MEAN = 0.0f;
-    private static final float IMAGE_STD = 1.0f;
-    private static final float PROBABILITY_MEAN = 0.0f;
-    private static final float PROBABILITY_STD = 255.0f;
-    private Bitmap bitmap;
-    private List<String> labels;
-    private ImageView imageView;
-    private Uri imageuri;
-    private Button buclassify;
-    private TextView classitext;
-    private LinearProgressIndicator progressIndicator;
-    private List<Maladie> maladies;
+class ClassifierFragment : Fragment() {
+    protected var tflite: Interpreter? = null
+    private val tfliteModel: MappedByteBuffer? = null
+    private var inputImageBuffer: TensorImage? = null
+    private var imageSizeX = 0
+    private var imageSizeY = 0
+    private var outputProbabilityBuffer: TensorBuffer? = null
+    private var probabilityProcessor: TensorProcessor? = null
+    private var bitmap: Bitmap? = null
+    private var labels: List<String>? = null
+    private var imageView: ImageView? = null
+    private var imageuri: Uri? = null
+    private var buclassify: Button? = null
+    private var classitext: TextView? = null
+    private var progressIndicator: LinearProgressIndicator? = null
+    private val maladies: MutableList<Maladie> = mutableListOf()
 
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        setHasOptionsMenu(true);
+    override fun onStart() {
+        super.onStart()
+        setHasOptionsMenu(true)
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
-        getMaladies();
-        return inflater.inflate(R.layout.fragment_classifier, container, false);
+        maladies
+        return inflater.inflate(R.layout.fragment_classifier, container, false)
     }
 
-    private void getMaladies() {
-        FirebaseFirestore.getInstance().collection("maladies").addSnapshotListener((value, error) -> {
-            if (error != null || value == null) {
-                Log.e("TAG", error.getLocalizedMessage());
-                return;
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        imageView = view.findViewById<View>(R.id.image) as ImageView
+        buclassify = view.findViewById<View>(R.id.classify) as Button
+        classitext = view.findViewById<View>(R.id.classifytext) as TextView
+        progressIndicator = view.findViewById(R.id.linearProgressIndicator2)
+        try {
+            tflite = Interpreter(loadmodelfile(requireActivity()))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        buclassify!!.setOnClickListener { v: View? -> classifier() }
+    }
+
+    private fun classifier() {
+        progressIndicator!!.show()
+        val imageTensorIndex = 0
+        val imageShape = tflite!!.getInputTensor(imageTensorIndex).shape() // {1, height, width, 3}
+        imageSizeY = imageShape[1]
+        imageSizeX = imageShape[2]
+        val imageDataType = tflite!!.getInputTensor(imageTensorIndex).dataType()
+        val probabilityTensorIndex = 0
+        val probabilityShape =
+            tflite!!.getOutputTensor(probabilityTensorIndex).shape() // {1, NUM_CLASSES}
+        val probabilityDataType = tflite!!.getOutputTensor(probabilityTensorIndex).dataType()
+        inputImageBuffer = TensorImage(imageDataType)
+        outputProbabilityBuffer =
+            TensorBuffer.createFixedSize(probabilityShape, probabilityDataType)
+        probabilityProcessor = TensorProcessor.Builder().add(postprocessNormalizeOp).build()
+        inputImageBuffer = loadImage(bitmap)
+        tflite!!.run(inputImageBuffer!!.buffer, outputProbabilityBuffer!!.buffer.rewind())
+        showresult()
+    }
+
+    private fun getConseilMaladie(uidMaladie: String) {
+        FirebaseFirestore.getInstance().collection("conseils")
+            .whereEqualTo("uidMaladie", uidMaladie)
+            .addSnapshotListener { value, error ->
+                if (error != null && value == null) {
+                    return@addSnapshotListener
+                }
+
+
+                val data = value?.toObjects(Conseil::class.java)
+
+
+                val ref = FirebaseStorage.getInstance().getReference("image")
+                ref.putFile(imageuri!!).addOnSuccessListener {
+                        ref.downloadUrl.addOnSuccessListener { url ->
+                            val diagnostique = Diagnostic()
+                            diagnostique.uidMaladie = uidMaladie
+                            diagnostique.uidConseil = data?.firstOrNull()?.uid ?: ""
+                            diagnostique.urlImage = url.toString()
+
+                            Log.e("ericampire", url.toString())
+
+                            val docRef = FirebaseFirestore.getInstance().collection("diagnostiques")
+                                .document()
+
+                            diagnostique.uid = docRef.id
+                            docRef.set(diagnostique).addOnSuccessListener {
+                                progressIndicator?.visibility = View.INVISIBLE
+
+                                val direction: NavDirections = ClassifierFragmentDirections.navToDetailClassifier(uidMaladie)
+                                Navigation.findNavController(requireView()).navigate(direction)
+
+                            }
+                        }
+                    }
+
             }
-
-            maladies = value.toObjects(Maladie.class);
-        });
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        imageView=(ImageView)view.findViewById(R.id.image);
-        buclassify=(Button)view.findViewById(R.id.classify);
-        classitext=(TextView)view.findViewById(R.id.classifytext);
-        progressIndicator = view.findViewById(R.id.linearProgressIndicator2);
+    private fun saveClassification() {
 
-        try{
-            tflite = new Interpreter(loadmodelfile(requireActivity()));
-        }catch (Exception e) {
-            e.printStackTrace();
+    }
+
+
+    private fun showresult() {
+        try {
+            labels = FileUtil.loadLabels(requireContext(), "newdict.txt")
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-
-        buclassify.setOnClickListener(v -> classifier());
-    }
-
-    private void classifier() {
-        progressIndicator.show();
-        int imageTensorIndex = 0;
-        int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
-        imageSizeY = imageShape[1];
-        imageSizeX = imageShape[2];
-        DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
-
-        int probabilityTensorIndex = 0;
-        int[] probabilityShape =
-                tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
-        DataType probabilityDataType = tflite.getOutputTensor(probabilityTensorIndex).dataType();
-
-        inputImageBuffer = new TensorImage(imageDataType);
-        outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType);
-        probabilityProcessor = new TensorProcessor.Builder().add(getPostprocessNormalizeOp()).build();
-
-        inputImageBuffer = loadImage(bitmap);
-
-        tflite.run(inputImageBuffer.getBuffer(), outputProbabilityBuffer.getBuffer().rewind());
-        showresult();
-    }
-
-    private void showresult() {
-        try{
-            labels = FileUtil.loadLabels(requireContext(),"newdict.txt");
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        Map<String, Float> labeledProbability =
-                new TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer))
-                        .getMapWithFloatValue();
-        float maxValueInMap = (Collections.max(labeledProbability.values()));
-
-        for (Map.Entry<String, Float> entry : labeledProbability.entrySet()) {
-            if (entry.getValue() == maxValueInMap) {
-                NavDirections direction = ClassifierFragmentDirections.navToDetailClassifier(entry.getKey());
-                Navigation.findNavController(requireView()).navigate(direction);
+        val labeledProbability = TensorLabel(
+            labels!!, probabilityProcessor!!.process(outputProbabilityBuffer)
+        )
+            .mapWithFloatValue
+        val maxValueInMap = Collections.max(labeledProbability.values)
+        for ((key, value) in labeledProbability) {
+            if (value == maxValueInMap) {
+                // Todo:df
+                getConseilMaladie(key)
             }
         }
     }
 
-    private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
-        AssetFileDescriptor fileDescriptor = activity.getAssets().openFd("newmodel.tflite");
-        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
-        FileChannel fileChannel = inputStream.getChannel();
-        long startoffset = fileDescriptor.getStartOffset();
-        long declaredLength = fileDescriptor.getDeclaredLength();
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startoffset, declaredLength);
+    @Throws(IOException::class)
+    private fun loadmodelfile(activity: Activity): MappedByteBuffer {
+        val fileDescriptor = activity.assets.openFd("newmodel.tflite")
+        val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
+        val fileChannel = inputStream.channel
+        val startoffset = fileDescriptor.startOffset
+        val declaredLength = fileDescriptor.declaredLength
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startoffset, declaredLength)
     }
 
-    private TensorOperator getPreprocessNormalizeOp() {
-        return new NormalizeOp(IMAGE_MEAN, IMAGE_STD);
-    }
+    private val preprocessNormalizeOp: TensorOperator
+        private get() = NormalizeOp(IMAGE_MEAN, IMAGE_STD)
+    private val postprocessNormalizeOp: TensorOperator
+        private get() = NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD)
 
-    private TensorOperator getPostprocessNormalizeOp() {
-        return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
-    }
-
-    private void getMaladieByUid(String uidMaladie) {
-        Maladie currentMaladie = null;
-        for (Maladie maladie : maladies) {
-            if (maladie.getUid().equals(uidMaladie)) {
-                currentMaladie = maladie;
-                break;
-            }
-        }
-        if (currentMaladie != null) {
-            classitext.setText(currentMaladie.getNomMaladie());
-            progressIndicator.hide();
-        }
-    }
-
-    private TensorImage loadImage(final Bitmap bitmap) {
+    private fun loadImage(bitmap: Bitmap?): TensorImage? {
         // Loads bitmap into a TensorImage.
-        TensorImage tensorImage = null;
+        var tensorImage: TensorImage? = null
         try {
-            inputImageBuffer.load(bitmap);
-            int cropSize = Math.min(bitmap.getWidth(), bitmap.getHeight());
+            inputImageBuffer!!.load(bitmap)
+            val cropSize = Math.min(bitmap!!.width, bitmap.height)
             // TODO(b/143564309): Fuse ops inside ImageProcessor.
-            ImageProcessor imageProcessor = new ImageProcessor.Builder()
-                .add(new ResizeWithCropOrPadOp(cropSize, cropSize))
-                .add(new ResizeOp(imageSizeX, imageSizeY, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
-                .add(getPreprocessNormalizeOp())
-                .build();
-
-            tensorImage = imageProcessor.process(inputImageBuffer);
-        } catch (Exception e) {
-            Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+            val imageProcessor = ImageProcessor.Builder()
+                .add(ResizeWithCropOrPadOp(cropSize, cropSize))
+                .add(ResizeOp(imageSizeX, imageSizeY, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+                .add(preprocessNormalizeOp)
+                .build()
+            tensorImage = imageProcessor.process(inputImageBuffer)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), e.localizedMessage, Toast.LENGTH_LONG).show()
         }
-
-        return tensorImage;
+        return tensorImage
     }
 
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.main_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.main_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_item_capture) {
-            captureImage();
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_item_capture) {
+            captureImage()
         } else {
-            selectOnGalery();
+            selectOnGalery()
         }
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item)
     }
 
-    private void selectOnGalery() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), 12);
+    private fun selectOnGalery() {
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), 12)
     }
 
-    private void captureImage() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    private fun captureImage() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         try {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        } catch (ActivityNotFoundException e) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+        } catch (e: ActivityNotFoundException) {
             // display error state to the user
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK && data != null) {
-            imageuri = data.getData();
-            Bundle extras = data.getExtras();
-            bitmap = (Bitmap) extras.get("data");
-            imageView.setImageBitmap(bitmap);
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK && data != null) {
+            imageuri = data.data
+            val extras = data.extras
+            bitmap = extras!!["data"] as Bitmap?
+            imageView!!.setImageBitmap(bitmap)
         }
-
-        if (requestCode == 12 && resultCode == RESULT_OK && data != null) {
-            imageuri = data.getData();
+        if (requestCode == 12 && resultCode == Activity.RESULT_OK && data != null) {
+            imageuri = data.data
             try {
-                bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageuri);
-                imageView.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
+                bitmap =
+                    MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, imageuri)
+                imageView!!.setImageBitmap(bitmap)
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
         }
+    }
+
+    companion object {
+        const val REQUEST_IMAGE_CAPTURE = 1
+        private const val IMAGE_MEAN = 0.0f
+        private const val IMAGE_STD = 1.0f
+        private const val PROBABILITY_MEAN = 0.0f
+        private const val PROBABILITY_STD = 255.0f
     }
 }
